@@ -1,0 +1,55 @@
+- name: ensure {{name}} user exists
+  user:
+    name: "{{name}}"
+    group: www-data
+		generate_ssh_key: True
+		system: False
+
+- name: Add README.md to {{name}}'s home dir
+  template:
+    src: README.md
+    dest: ~{{name}}/README.md
+
+- name: ensure {{name}} user can manage own systemd unit files
+  command: loginctl enable-linger {{user}}
+
+- name: Make sure default home folders exist.
+  become: "{{name}}"
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0755
+  with_items: ['~/static','~/media','~/logs']
+
+- name: Pull latest git
+  become: "{{name}}"
+  git:
+	  repo: "{{source}}"
+		version: "{{branch}}" #Defaults to `master`
+		dest: "~/app"
+
+- name: Ensure database user exists
+  postgresql_user:
+    db: "{{name}}"
+		name: "{{name}}"
+		password: "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}"
+		priv: "CONNECT/ALL"
+
+- name: template "ansible_*" files in file tree
+  become: "{{name}}"
+  template:
+	    src: '{{ item.src }}'
+			dest: '{{ item.path.lstrip('ansible_') }}'
+		  mode: '{{ item.mode }}'
+	when: item.state == 'file' and item.path.startsswith("ansible_")
+  with_filetree: "~{{name}}/app"
+
+- name: Running {{type}} specific setup
+  import_tasks: "{{type}}.yml"
+  when: type
+
+- name: Run misc commands
+  chdir: ~{{name}}/
+  command: "{{item}}"
+  become: "{{name}}"
+  with_items: "{{commands}}"
