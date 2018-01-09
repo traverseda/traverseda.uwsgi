@@ -1,3 +1,6 @@
+- name: Configuring nginx
+  import_tasks: "nginx.yml"
+
 - name: ensure {{name}} user exists
   user:
     name: "{{name}}"
@@ -5,7 +8,7 @@
 		generate_ssh_key: True
 		system: False
 
-- name: Add README.md to {{name}}'s home dir
+- name: "Add README.md to {{name}}'s home dir"
   template:
     src: README.md
     dest: ~{{name}}/README.md
@@ -18,8 +21,12 @@
   file:
     path: "{{item}}"
     state: directory
-    mode: 0755
-  with_items: ['~/static','~/media','~/logs']
+    mode: 0750
+  with_items: 
+	  - '~/www'
+		- '~/logs'
+		- '~/fallback'
+		- '~/.config/systemd/user/'
 
 - name: Pull latest git
   become: "{{name}}"
@@ -27,6 +34,7 @@
 	  repo: "{{source}}"
 		version: "{{branch}}" #Defaults to `master`
 		dest: "~/app"
+	when: source
 
 - name: Ensure database user exists
   postgresql_user:
@@ -35,7 +43,7 @@
 		password: "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}"
 		priv: "CONNECT/ALL"
 
-- name: template "ansible_*" files in file tree
+- name: template "ansible_*" files in source tree
   become: "{{name}}"
   template:
 	    src: '{{ item.src }}'
@@ -45,7 +53,7 @@
   with_filetree: "~{{name}}/app"
 
 - name: Running {{type}} specific setup
-  import_tasks: "{{type}}.yml"
+  import_tasks: "app/{{type}}.yml"
   when: type
 
 - name: Run misc commands
@@ -53,3 +61,21 @@
   command: "{{item}}"
   become: "{{name}}"
   with_items: "{{commands}}"
+
+- name: Register {{domain}} for setup later
+  set_fact:
+  	domains: "{{domains}}+{{[(domain,name)]}}"
+
+- name: create systemd services for uwsgi app
+  become: "{{name}}"
+	template:
+	    src: {{item}}
+			dest: ~/.config/systemd/user/{{item}}
+	systemd:
+	  name: {{item}}
+		enabled: True
+		user: True
+
+	with_items:
+	  - app.service
+		- socker.service

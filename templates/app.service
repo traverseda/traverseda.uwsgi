@@ -1,12 +1,12 @@
 [Unit]
-Description=%i uWSGI app
+Description={{user}} uWSGI app
 After=syslog.target
 
 [Service]
 ExecStart=/usr/bin/uwsgi \
-        --ini /etc/uwsgi/apps-available/%i.ini \
-        --socket /var/run/uwsgi/%i.socket
-User=%i
+        --ini %h/uwsgi.ini \
+        --socket %h/app.socket
+User={{user}}
 Group=www-data
 Restart=on-failure
 KillSignal=SIGQUIT
