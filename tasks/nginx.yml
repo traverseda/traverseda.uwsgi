@@ -3,23 +3,27 @@
      - restart memcached
   blockinfile:
     path: "{{default_nginx_site}}"
-		marker: "# {mark} ANSIBLE MANAGED BLOCK"
-		insertafter: "server {"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    insertafter: "server {"
+    ########
+    # BEWARE THE TABS
+    # :set listchars=tab:␉·
+    ########
     block: |
-		    #Home dir content and app serving.
-				#Serve static content from ~/www
-				location ~ ^/~(.+?)(/.*)?$ {
-		    	alias /home/$1/www$2;
-			    autoindex off;
-				}
-				#Serve the app at ~/app.sock
-				location ~ ^/~(.+?)(/.*)?$ {
-          include         uwsgi_params;
-          uwsgi_pass      unix:/home/$1/app.sock;
-				}
-				#If the app is down, serve the html in the ~/fallback dir
-				location ~ ^/~(.+?)(/.*)?$ {
-		    	alias /home/$1/fallback$2;
-			    autoindex off;
-				}
+      #Home dir content and app serving.
+      	#Serve static content from ~/www
+      	location ~ ^/~(.+?)(/.*)?$ {
+      		alias /home/$1/www$2;
+      		autoindex off;
+      	}
+      	#Serve the app at ~/app.sock
+      	location ~ ^/~(.+?)(/.*)?$ {
+      		include         uwsgi_params;
+      		uwsgi_pass      unix:/home/$1/app.sock;
+      	}
+      	#If the app is down, serve the html in the ~/fallback dir
+      		location ~ ^/~(.+?)(/.*)?$ {
+      		alias /home/$1/fallback$2;
+      		autoindex off;
+      	}
 

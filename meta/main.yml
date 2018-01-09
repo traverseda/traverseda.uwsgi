@@ -1,9 +1,9 @@
 galaxy_info:
   author: Traverseda
   description: Use uwsgi with postgres, nginx, and systemd user services
-	issue_tracker_url: https://github.com/traverseda/uwsgi.git
+  issue_tracker_url: https://github.com/traverseda/uwsgi.git
   license: AGPL #Contact me for business licenses
-	galaxy_tags: ["uwsgi",]
-	dependencies: []
+  galaxy_tags: ["uwsgi",]
 
+dependencies: []
 allow_duplicates: true 

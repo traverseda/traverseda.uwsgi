@@ -5,8 +5,8 @@
   user:
     name: "{{name}}"
     group: www-data
-		generate_ssh_key: True
-		system: False
+    generate_ssh_key: True
+    system: False
 
 - name: "Add README.md to {{name}}'s home dir"
   template:
@@ -23,33 +23,33 @@
     state: directory
     mode: 0750
   with_items: 
-	  - '~/www'
-		- '~/logs'
-		- '~/fallback'
-		- '~/.config/systemd/user/'
+    - '~/www'
+    - '~/logs'
+    - '~/fallback'
+    - '~/.config/systemd/user/'
 
 - name: Pull latest git
   become: "{{name}}"
   git:
-	  repo: "{{source}}"
-		version: "{{branch}}" #Defaults to `master`
-		dest: "~/app"
-	when: source
+    repo: "{{source}}"
+    version: "{{branch}}" #Defaults to `master`
+    dest: "~/app"
+  when: source
 
 - name: Ensure database user exists
   postgresql_user:
     db: "{{name}}"
-		name: "{{name}}"
-		password: "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}"
-		priv: "CONNECT/ALL"
+    name: "{{name}}"
+    password: "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}"
+    priv: "CONNECT/ALL"
 
 - name: template "ansible_*" files in source tree
   become: "{{name}}"
   template:
-	    src: '{{ item.src }}'
-			dest: '{{ item.path.lstrip('ansible_') }}'
-		  mode: '{{ item.mode }}'
-	when: item.state == 'file' and item.path.startsswith("ansible_")
+    src: '{{ item.src }}'
+    dest: '{{ item.path.lstrip("ansible_") }}'
+    mode: '{{ item.mode }}'
+  when: item.state == 'file' and item.path.startsswith("ansible_")
   with_filetree: "~{{name}}/app"
 
 - name: Running {{type}} specific setup
@@ -64,18 +64,18 @@
 
 - name: Register {{domain}} for setup later
   set_fact:
-  	domains: "{{domains}}+{{[(domain,name)]}}"
+    domains: "{{domains}}+{{[(domain,name)]}}"
 
 - name: create systemd services for uwsgi app
   become: "{{name}}"
-	template:
-	    src: {{item}}
-			dest: ~/.config/systemd/user/{{item}}
-	systemd:
-	  name: {{item}}
-		enabled: True
-		user: True
+  template:
+    src: "{{item}}"
+    dest: ~/.config/systemd/user/{{item}}
+  systemd:
+    name: "{{item}}"
+    enabled: True
+    user: True
 
-	with_items:
-	  - app.service
-		- socker.service
+  with_items:
+    - app.service
+    - socket.service
