@@ -4,6 +4,13 @@ galaxy_info:
   issue_tracker_url: https://github.com/traverseda/uwsgi.git
   license: AGPL #Contact me for business licenses
   galaxy_tags: ["uwsgi",]
+	platforms:
+  - name: Debian
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
 
 dependencies: []
 allow_duplicates: true 

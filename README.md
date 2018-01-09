@@ -1,3 +1,5 @@
+# traverseda.uwsgi
+
 Deploy django/php apps with ansible and uwsgi.
 
 This role is a bit odd, in that it tries to push as much as possible onto
@@ -8,9 +10,14 @@ It's designed to run under nginx, systemd, and postgres.
 
 It makes the uwsgi apps available at `<yoursite>/~<name>`.
 
-It requires `nginx uwsgi`
+## Quickstart
+
+It requires `nginx uwsgi`, so make sure those are installed. You
+also probably want to install `python` and 
+run `sudo pip install ansible`.
 
 ```yaml
+#~/server.yml
 vars:
   default_nginx_site: /etc/nginx/sites-enabled/default #Needed for
   #enabling home-dir apps
@@ -24,7 +31,14 @@ roles:
     domain: app.example.com #This just sets facts for later
   - role: traverseda.uwsgi
   #...
+
 ```
+
+You could then deploy using something like
+
+`sudo ansible-playbook -i "localhost," -c local server.yml`
+
+
 
 During setup, it templates any file starting with `ansible_`. So if you wanted
 to use some of these ansible variables in your config, `ansible_config.py` would
