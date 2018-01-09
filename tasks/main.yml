@@ -14,29 +14,40 @@
     dest: ~{{name}}/README.md
 
 - name: ensure {{name}} user can manage own systemd unit files
-  command: loginctl enable-linger {{user}}
+  command: loginctl enable-linger {{name}}
 
 - name: Make sure default home folders exist.
-  become: "{{name}}"
+  become: True
+  become_user: "{{name}}"
   file:
-    path: "{{item}}"
+    path: "~{{name}}/{{item}}"
+    recurse: True
     state: directory
     mode: 0750
   with_items: 
-    - '~/www'
-    - '~/logs'
-    - '~/fallback'
-    - '~/.config/systemd/user/'
+    - www
+    - logs
+    - fallback
+    - .config/systemd/user/
 
 - name: Pull latest git
-  become: "{{name}}"
+  become: True
+  become_user: "{{name}}"
   git:
     repo: "{{source}}"
     version: "{{branch}}" #Defaults to `master`
-    dest: "~/app"
+    dest: "~{{name}}/app"
   when: source
 
+- name: Ensure {{name}} postgresql database exists
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{name}}"
+
 - name: Ensure database user exists
+  become: true
+  become_user: postgres
   postgresql_user:
     db: "{{name}}"
     name: "{{name}}"
@@ -44,7 +55,8 @@
     priv: "CONNECT/ALL"
 
 - name: template "ansible_*" files in source tree
-  become: "{{name}}"
+  become: True
+  become_user: "{{name}}"
   template:
     src: '{{ item.src }}'
     dest: '{{ item.path.lstrip("ansible_") }}'
@@ -53,29 +65,40 @@
   with_filetree: "~{{name}}/app"
 
 - name: Running {{type}} specific setup
-  import_tasks: "app/{{type}}.yml"
+  include_tasks: "app/{{type}}.yml"
   when: type
 
 - name: Run misc commands
   chdir: ~{{name}}/
   command: "{{item}}"
-  become: "{{name}}"
+  become: True
+  become_user: "{{name}}"
   with_items: "{{commands}}"
 
-- name: Register {{domain}} for setup later
+- name: Register {{domain}} domain name for setup later
   set_fact:
     domains: "{{domains}}+{{[(domain,name)]}}"
+  when: domain
 
 - name: create systemd services for uwsgi app
-  become: "{{name}}"
+  become: True
+  become_user: "{{name}}"
   template:
     src: "{{item}}"
-    dest: ~/.config/systemd/user/{{item}}
+    dest: ~{{name}}/.config/systemd/user/{{item}}
+  with_items:
+    - app.service
+    - socket.service
+
+- name: Enable systemd services for uwsgi app
+  become: True
+  become_user: "{{name}}"
+  with_items:
+    - app.service
+    - socket.service
   systemd:
     name: "{{item}}"
     enabled: True
     user: True
-
-  with_items:
-    - app.service
-    - socket.service
+  environment:
+    XDG_RUNTIME_DIR: /run/user/{{lookup('pipe', 'id -u '+name)}}

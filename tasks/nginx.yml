@@ -1,6 +1,6 @@
 - name: Insert/update home folder serving block into {{default_nginx_site}}
   notify:
-     - restart memcached
+     - restart nginx
   blockinfile:
     path: "{{default_nginx_site}}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK"

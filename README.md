@@ -8,6 +8,8 @@ It's designed to run under nginx, systemd, and postgres.
 
 It makes the uwsgi apps available at `<yoursite>/~<name>`.
 
+It requires `nginx uwsgi`
+
 ```yaml
 vars:
   default_nginx_site: /etc/nginx/sites-enabled/default #Needed for
