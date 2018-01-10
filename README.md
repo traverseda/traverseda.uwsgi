@@ -1,5 +1,7 @@
 # traverseda.uwsgi
 
+[![CLA assistant](https://cla-assistant.io/readme/badge/traverseda/traverseda.uwsgi)](https://cla-assistant.io/traverseda/traverseda.uwsgi) 
+
 Deploy django/php apps with ansible and uwsgi.
 
 This role is a bit odd, in that it tries to push as much as possible onto
