@@ -30,14 +30,21 @@
     - fallback
     - .config/systemd/user/
 
+- name: Make publickey available at <yoursite>/~{{name}}/id_rsa.pub
+  file:
+    src: '~{{name}}/.ssh/id_rsa.pub'
+    dest: '~{{name}}/www/id_rsa.pub'
+    state: hard
+
 - name: Pull latest git
+  accept_hostkey: True
   become: True
   become_user: "{{name}}"
   git:
     repo: "{{source}}"
     version: "{{branch}}" #Defaults to `master`
     dest: "~{{name}}/app"
-  when: source
+  when: source != None
 
 - name: Ensure {{name}} postgresql database exists
   become: true
@@ -61,16 +68,17 @@
     src: '{{ item.src }}'
     dest: '{{ item.path.lstrip("ansible_") }}'
     mode: '{{ item.mode }}'
-  when: item.state == 'file' and item.path.startsswith("ansible_")
-  with_filetree: "~{{name}}/app"
+  with_filetree: "~{{name}}/app/"
+  when: item.state == 'file' and item.path | match("^ansible_(.*)$")
 
 - name: Running {{type}} specific setup
   include_tasks: "app/{{type}}.yml"
   when: type
 
 - name: Run misc commands
-  chdir: ~{{name}}/
   command: "{{item}}"
+  args:
+    chdir: ~{{name}}/
   become: True
   become_user: "{{name}}"
   with_items: "{{commands}}"
@@ -91,6 +99,7 @@
     - socket.service
 
 - name: Enable systemd services for uwsgi app
+  ignore_errors: yes
   become: True
   become_user: "{{name}}"
   with_items:

@@ -3,27 +3,20 @@
      - restart nginx
   blockinfile:
     path: "{{default_nginx_site}}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK"
-    insertafter: "server {"
+    marker: "	# {mark} ANSIBLE MANAGED BLOCK"
+    insertafter: "^server {"
     ########
-    # BEWARE THE TABS
+    # BEWAARE THE TABS
     # :set listchars=tab:␉·
+    # :set list
     ########
     block: |
-      #Home dir content and app serving.
-      	#Serve static content from ~/www
       	location ~ ^/~(.+?)(/.*)?$ {
-      		alias /home/$1/www$2;
-      		autoindex off;
+      		root /home/$1/www;
+      		try_files $2 @uwsgiApp;
+      		error_page 404 /404.html
       	}
-      	#Serve the app at ~/app.sock
-      	location ~ ^/~(.+?)(/.*)?$ {
-      		include         uwsgi_params;
-      		uwsgi_pass      unix:/home/$1/app.sock;
+      	location @uwsgiApp {
+      		uwsgi_pass unix:///home/$1/app.socket;
+      		include uwsgi_params;
       	}
-      	#If the app is down, serve the html in the ~/fallback dir
-      		location ~ ^/~(.+?)(/.*)?$ {
-      		alias /home/$1/fallback$2;
-      		autoindex off;
-      	}
-
