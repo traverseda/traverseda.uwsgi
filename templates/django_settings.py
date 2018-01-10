@@ -19,7 +19,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': '{{name}}',
         'USER': '{{name}}',
-        'PASSWORD': "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}",
+        'PASSWORD': "{{lookup('password', 'data/{{name}}_postgresPassword.txt length=32')}}",
         'HOST': 'localhost',
         'PORT': '',
     }
