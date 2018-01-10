@@ -16,6 +16,10 @@ It requires `nginx uwsgi`, so make sure those are installed. You
 also probably want to install `python` and 
 run `sudo pip install ansible`.
 
+Take a look in the `examples` dir and find a config file close to what you want.
+Put it along side your debugging config, as `ansible_<your_config_name`. During
+deployment, that template will overwrite your debugging config.
+
 ```yaml
 #~/server.yml
 vars:
@@ -38,7 +42,7 @@ You could then deploy using something like
 
 `sudo ansible-playbook -i "localhost," -c local server.yml`
 
-
+## About
 
 During setup, it templates any file starting with `ansible_`. So if you wanted
 to use some of these ansible variables in your config, `ansible_config.py` would

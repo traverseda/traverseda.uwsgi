@@ -8,3 +8,7 @@ domain: None
 #But that we'll provide a sane default for here.
 default_nginx_site: /etc/nginx/sites-enabled/default
 domains: []
+
+#Python/django specific
+python: "/usr/bin/python3"
+debug: False

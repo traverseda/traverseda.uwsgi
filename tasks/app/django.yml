@@ -1,0 +1,24 @@
+- name: Create a virtualenv for django app using requirements.txt
+  become: True
+  become_user: "{{name}}"
+  pip: 
+    virtualenv: ~{{name}}/virtualenv/
+    virtualenv_python: "{{python}}"
+		requirements: ~{{name}}/requirements.txt
+
+- name: Create uwsgi.ini for django app
+  become: True
+  become_user: "{{name}}"
+  template:
+    src: uwsgi-types/django.ini
+    dest: ~{{name}}/uwsgi.ini
+
+- name: Run django management commands
+  become: True
+  become_user: "{{name}}"
+	command: "item"
+	with_items:
+	  - ./manage.py syncdb
+		- ./manage.py collectstatic
+
+# TODO: add support for celery and django-channels workers as systemd user units.
