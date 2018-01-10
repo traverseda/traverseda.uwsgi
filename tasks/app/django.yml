@@ -4,7 +4,7 @@
   pip: 
     virtualenv: ~{{name}}/virtualenv/
     virtualenv_python: "{{python}}"
-		requirements: ~{{name}}/requirements.txt
+    requirements: ~{{name}}/requirements.txt
 
 - name: Create uwsgi.ini for django app
   become: True
