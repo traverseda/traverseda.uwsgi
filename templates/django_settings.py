@@ -30,4 +30,6 @@ import os
 ALLOWED_HOSTS={{allowed_hosts | default(["localhost",])}}
 
 STATIC_ROOT=os.path.expanduser('~/www/static')
+STATIC_URL="/~{{name}}/static/"
 MEDIA_ROOT=os.path.expanduser('~/www/media')
+MEDIA_URL="/~{{name}}/media/"
