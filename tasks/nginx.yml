@@ -14,7 +14,6 @@
       	location ~ ^/~(.+?)(/.*)?$ {
       		root /home/$1/www;
       		try_files $2 @uwsgiApp;
-      		error_page 404 /404.html
       	}
       	location @uwsgiApp {
       		uwsgi_pass unix:///home/$1/app.socket;

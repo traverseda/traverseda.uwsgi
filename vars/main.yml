@@ -9,6 +9,11 @@ domain: None
 default_nginx_site: /etc/nginx/sites-enabled/default
 domains: []
 
+#Extra uwsgi config
+processes: 4
+cheaper: 0
+
 #Python/django specific
+uwsgi_module: python3
 python: "/usr/bin/python3"
 debug: False

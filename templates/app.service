@@ -6,8 +6,6 @@ After=syslog.target
 ExecStart=/usr/bin/uwsgi \
         --ini %h/uwsgi.ini \
         --socket %h/app.socket
-User={{name}}
-Group=www-data
 Restart=on-failure
 KillSignal=SIGQUIT
 Type=notify

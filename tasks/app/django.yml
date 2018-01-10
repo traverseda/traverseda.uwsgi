@@ -4,21 +4,40 @@
   pip: 
     virtualenv: ~{{name}}/virtualenv/
     virtualenv_python: "{{python}}"
-    requirements: ~{{name}}/requirements.txt
+    requirements: ~{{name}}/app/requirements.txt
 
-- name: Create uwsgi.ini for django app
+- name: Make sure psycopg2 is installed
   become: True
   become_user: "{{name}}"
+  pip: 
+    virtualenv: ~{{name}}/virtualenv/
+    virtualenv_python: "{{python}}"
+    name: psycopg2
+
+- name: Move {{django_settings}} to {{django_settings| dirname}}orig_{{django_settings| basename}}
+  copy:
+    remote_src: True
+    src: ~{{name}}/app/{{django_settings}}
+    dest: ~{{name}}/app/{{django_settings| dirname}}/orig_{{django_settings| basename}}
+
+- name: Template out our new django settings
+  template:
+    src: django_settings.py
+    dest: ~{{name}}/app/{{django_settings}}
+
+- name: Create uwsgi.ini for django app
   template:
     src: uwsgi-types/django.ini
     dest: ~{{name}}/uwsgi.ini
+  become: True
+  become_user: "{{name}}"
 
 - name: Run django management commands
   become: True
   become_user: "{{name}}"
-	command: "item"
-	with_items:
-	  - ./manage.py syncdb
-		- ./manage.py collectstatic
+  command: ~{{name}}/virtualenv/bin/python ~{{name}}/app/{{item}}
+  with_items:
+    - manage.py migrate
+    - manage.py collectstatic --noinput
 
 # TODO: add support for celery and django-channels workers as systemd user units.

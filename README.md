@@ -41,13 +41,3 @@ roles:
 You could then deploy using something like
 
 `sudo ansible-playbook -i "localhost," -c local server.yml`
-
-## About
-
-During setup, it templates any file starting with `ansible_`. So if you wanted
-to use some of these ansible variables in your config, `ansible_config.py` would
-become `config.py` after templating.
-
-The postgres user/db are both `{{name}}` and you can access the password with
-`{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}`. Or just
-look at the `postgresPassword.txt` file in your app's home dir.

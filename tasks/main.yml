@@ -37,10 +37,11 @@
     state: hard
 
 - name: Pull latest git
-  accept_hostkey: True
   become: True
   become_user: "{{name}}"
   git:
+    accept_hostkey: True
+    force: True
     repo: "{{source}}"
     version: "{{branch}}" #Defaults to `master`
     dest: "~{{name}}/app"
@@ -60,16 +61,6 @@
     name: "{{name}}"
     password: "{{lookup('password', '~'+name+'/postgresPassword.txt length=32')}}"
     priv: "CONNECT/ALL"
-
-- name: template "ansible_*" files in source tree
-  become: True
-  become_user: "{{name}}"
-  template:
-    src: '{{ item.src }}'
-    dest: '{{ item.path.lstrip("ansible_") }}'
-    mode: '{{ item.mode }}'
-  with_filetree: "~{{name}}/app/"
-  when: item.state == 'file' and item.path | match("^ansible_(.*)$")
 
 - name: Running {{type}} specific setup
   include_tasks: "app/{{type}}.yml"
@@ -104,10 +95,12 @@
   become_user: "{{name}}"
   with_items:
     - app.service
-    - socket.service
+#    - socket.service
   systemd:
+    daemon_reload: True
     name: "{{item}}"
     enabled: True
     user: True
+    state: restarted
   environment:
     XDG_RUNTIME_DIR: /run/user/{{lookup('pipe', 'id -u '+name)}}
