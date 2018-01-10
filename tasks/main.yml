@@ -12,9 +12,6 @@
   command: id -u {{name}}
   register: uid
 
-- debug:
-    var: uid
-
 - name: "Add README.md to {{name}}'s home dir"
   template:
     src: README.md

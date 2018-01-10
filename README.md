@@ -15,21 +15,31 @@ It makes the uwsgi apps available at `<yoursite>/~<name>`.
 ## Quickstart
 
 ```yaml
+---
 #~/server.yml
-vars:
-  default_nginx_site: /etc/nginx/sites-enabled/default #Needed for
-  #enabling home-dir apps
+- hosts: any
+  vars:
+    default_nginx_site: /etc/nginx/sites-enabled/default
+  pre_tasks:
+  - name: Install required packages
+    become: True
+    apt:
+      name: "{{item}}"
+      state: present
+      update_cache: yes
+    with_items: ["nginx","python3","virtualenv","uwsgi","uwsgi-plugin-python3",]
 
-roles:
-  - role: traverseda.uwsgi
-    name: app #This names the user account, postgres database, etc
-    type: django #custom settings for a particular app type
-    source: git@github.com:example/example.git
-    branch: master #Defaults to master, you can leave this out.
-    domain: app.example.com #This just sets facts for later
-  - role: traverseda.uwsgi
-  #...
-
+  roles:
+    - role: traverseda.uwsgi
+      become: True
+      name: example-app
+      source: git@github.com/example/example.git
+      type: django
+      django_settings: Settings/settings.py
+      wsgi_file: Settings/wsgi.py
+      wsgi_module: Settings.wsgi:application
+      allowed_hosts: ['localhost', 'ec2-XX-XX-XXX-XX.compute-1.amazonaws.com']
+      debug: True
 ```
 
 You could then deploy using something like
