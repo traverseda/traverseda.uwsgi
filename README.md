@@ -10,7 +10,8 @@ service.
 
 It's designed to run under nginx, systemd, and postgres.
 
-It makes the uwsgi apps available at `<yoursite>/~<name>`.
+It makes the uwsgi apps available at `<yoursite>/~<name>`, without needing to
+use a subdomain!
 
 ## Quickstart
 
