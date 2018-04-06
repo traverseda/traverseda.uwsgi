@@ -2,7 +2,7 @@ from .orig_{{django_settings| basename |replace(".py", "") }} import *
 
 ##Create a unique secret key for the project
 try:
-    from Settings.secret_key import *
+    from .secret_key import *
 except ImportError:
     from django.utils.crypto import get_random_string
     SETTINGS_DIR=os.path.abspath(os.path.dirname(__file__))
@@ -12,7 +12,7 @@ except ImportError:
     secretfile = open(SETTINGS_DIR+"/secret_key.py", 'w')
     secretfile.write("SECRET_KEY = \'"+secret_key+"\'\n")
     secretfile.close()
-    from Settings.secret_key import *
+    from .secret_key import *
 
 DATABASES = {
     'default': {

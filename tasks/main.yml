@@ -1,16 +1,13 @@
 - name: Configuring nginx
   import_tasks: "nginx.yml"
 
-- name: ensure {{name}} user exists
+- name: ensure "{{name}}" user exists
   user:
     name: "{{name}}"
     group: www-data
     generate_ssh_key: True
     system: False
 
-- name: Register uid of {{name}}
-  command: id -u {{name}}
-  register: uid
 
 - name: "Add README.md to {{name}}'s home dir"
   template:
@@ -39,6 +36,13 @@
     src: '~{{name}}/.ssh/id_rsa.pub'
     dest: '~{{name}}/www/id_rsa.pub'
     state: hard
+
+- name: Register publickey
+  command: cat '~{{name}}/.ssh/id_rsa.pub'
+  register: pubkey
+
+- name: Print publickey
+  debug: msg="{{pubkey.stdout}}"
 
 - name: Pull latest git
   become: True
@@ -92,6 +96,10 @@
   with_items:
     - app.service
     - socket.service
+
+- name: Register uid of "{{name}}"
+  command: id -u {{name}}
+  register: uid
 
 - name: Enable systemd services for uwsgi app
   become: True
