@@ -2,12 +2,11 @@ source: None
 branch: master
 type: None
 commands: []
-domain: None
 
 #Things that should be global to the playbook
 #But that we'll provide a sane default for here.
 default_nginx_site: /etc/nginx/sites-enabled/default
-domains: []
+domains: False
 
 #Extra uwsgi config
 processes: 4

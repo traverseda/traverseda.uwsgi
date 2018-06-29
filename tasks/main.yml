@@ -82,11 +82,6 @@
   become_user: "{{name}}"
   with_items: "{{commands}}"
 
-- name: Register {{domain}} domain name for setup later
-  set_fact:
-    domains: "{{domains}}+{{[(domain,name)]}}"
-  when: domain
-
 - name: create systemd services for uwsgi app
   become: True
   become_user: "{{name}}"
