@@ -17,9 +17,9 @@ except ImportError:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '{{name}}',
-        'USER': '{{name}}',
-        'PASSWORD': "{{lookup('password', 'data/{{name}}_postgresPassword.txt length=32')}}",
+        'NAME': '{{userName}}',
+        'USER': '{{userName}}',
+        'PASSWORD': "{{lookup('password', 'data/{{userName}}_postgresPassword.txt length=32')}}",
         'HOST': 'localhost',
         'PORT': '',
     }
@@ -30,6 +30,6 @@ import os
 ALLOWED_HOSTS={{allowed_hosts | default(["localhost",])}}
 
 STATIC_ROOT=os.path.expanduser('~/www/static')
-STATIC_URL="/~{{name}}/static/"
+STATIC_URL="/~{{userName}}/static/"
 MEDIA_ROOT=os.path.expanduser('~/www/media')
-MEDIA_URL="/~{{name}}/media/"
+MEDIA_URL="/~{{userName}}/media/"

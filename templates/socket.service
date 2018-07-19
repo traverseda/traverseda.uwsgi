@@ -1,9 +1,9 @@
 [Unit]
-Description=Socket for uWSGI app {{name}}
+Description=Socket for uWSGI app {{userName}}
 
 [Socket]
 ListenStream=%h/app.socket
-SocketUser={{name}}
+SocketUser={{userName}}
 SocketGroup=www-data
 SocketMode=0660
 

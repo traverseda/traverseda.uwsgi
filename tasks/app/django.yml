@@ -1,41 +1,41 @@
 - name: Create a virtualenv for django app using requirements.txt
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   pip: 
-    virtualenv: ~{{name}}/virtualenv/
+    virtualenv: ~{{userName}}/virtualenv/
     virtualenv_python: "{{python}}"
-    requirements: ~{{name}}/app/requirements.txt
+    requirements: ~{{userName}}/app/requirements.txt
 
 - name: Make sure psycopg2 is installed
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   pip: 
-    virtualenv: ~{{name}}/virtualenv/
+    virtualenv: ~{{userName}}/virtualenv/
     virtualenv_python: "{{python}}"
     name: psycopg2
 
 - name: Move {{django_settings}} to {{django_settings| dirname}}orig_{{django_settings| basename}}
   copy:
     remote_src: True
-    src: ~{{name}}/app/{{django_settings}}
-    dest: ~{{name}}/app/{{django_settings| dirname}}/orig_{{django_settings| basename}}
+    src: ~{{userName}}/app/{{django_settings}}
+    dest: ~{{userName}}/app/{{django_settings| dirname}}/orig_{{django_settings| basename}}
 
 - name: Template out our new django settings
   template:
     src: django_settings.py
-    dest: ~{{name}}/app/{{django_settings}}
+    dest: ~{{userName}}/app/{{django_settings}}
 
 - name: Create uwsgi.ini for django app
   template:
     src: uwsgi-types/django.ini
-    dest: ~{{name}}/uwsgi.ini
+    dest: ~{{userName}}/uwsgi.ini
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
 
 - name: Run django management commands
   become: True
-  become_user: "{{name}}"
-  command: ~{{name}}/virtualenv/bin/python ~{{name}}/app/{{item}}
+  become_user: "{{userName}}"
+  command: ~{{userName}}/virtualenv/bin/python ~{{userName}}/app/{{item}}
   with_items:
     - manage.py migrate
     - manage.py collectstatic --noinput

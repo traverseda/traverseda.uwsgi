@@ -14,7 +14,7 @@
 - name: Set up sub domains
   template:
     src: templates/nginx_domain.conf
-    dest: /etc/nginx/sites-available/{{name}}.conf
+    dest: /etc/nginx/sites-available/{{userName}}.conf
     owner: root
     group: root
     mode: 0644

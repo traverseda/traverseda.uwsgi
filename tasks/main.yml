@@ -1,27 +1,27 @@
 - name: Configuring nginx
   import_tasks: "nginx.yml"
 
-- name: ensure "{{name}}" user exists
+- name: ensure "{{userName}}" user exists
   user:
-    name: "{{name}}"
+    name: "{{userName}}"
     group: www-data
     generate_ssh_key: True
     system: False
 
 
-- name: "Add README.md to {{name}}'s home dir"
+- name: "Add README.md to {{userName}}'s home dir"
   template:
     src: README.md
-    dest: ~{{name}}/README.md
+    dest: ~{{userName}}/README.md
 
-- name: ensure {{name}} user can manage own systemd unit files
-  command: loginctl enable-linger {{name}}
+- name: ensure {{userName}} user can manage own systemd unit files
+  command: loginctl enable-linger {{userName}}
 
 - name: Make sure default home folders exist.
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   file:
-    path: "~{{name}}/{{item}}"
+    path: "~{{userName}}/{{item}}"
     recurse: True
     state: directory
     mode: 0750
@@ -31,14 +31,14 @@
     - fallback
     - .config/systemd/user/
 
-- name: Make publickey available at <yoursite>/~{{name}}/id_rsa.pub
+- name: Make publickey available at <yoursite>/~{{userName}}/id_rsa.pub
   file:
-    src: '~{{name}}/.ssh/id_rsa.pub'
-    dest: '~{{name}}/www/id_rsa.pub'
+    src: '~{{userName}}/.ssh/id_rsa.pub'
+    dest: '~{{userName}}/www/id_rsa.pub'
     state: hard
 
 - name: Register publickey
-  command: cat '~{{name}}/.ssh/id_rsa.pub'
+  command: cat '~{{userName}}/.ssh/id_rsa.pub'
   register: pubkey
 
 - name: Print publickey
@@ -46,59 +46,59 @@
 
 - name: Pull latest git
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   git:
     accept_hostkey: True
     force: True
     repo: "{{source}}"
     version: "{{branch}}" #Defaults to `master`
-    dest: "~{{name}}/app"
+    dest: "~{{userName}}/app"
   when: source != None
 
-- name: Ensure {{name}} postgresql database exists
+- name: Ensure {{userName}} postgresql database exists
   become: true
   become_user: postgres
   postgresql_db:
-    name: "{{name}}"
+    name: "{{userName}}"
 
 - name: Ensure database user exists
   become: true
   become_user: postgres
   postgresql_user:
-    db: "{{name}}"
-    name: "{{name}}"
-    password: "{{lookup('password', 'data/{{name}}_postgresPassword.txt length=32')}}"
+    db: "{{userName}}"
+    name: "{{userName}}"
+    password: "{{lookup('password', 'data/{{userName}}_postgresPassword.txt length=32')}}"
     priv: "CONNECT/ALL"
 
 - name: Running {{type}} specific setup
   include_tasks: "app/{{type}}.yml"
-  when: type
+  when: type != None
 
 - name: Run misc commands
   command: "{{item}}"
   args:
-    chdir: ~{{name}}/
+    chdir: ~{{userName}}/
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   with_items: "{{commands}}"
 
 - name: create systemd services for uwsgi app
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
   template:
     src: "{{item}}"
-    dest: ~{{name}}/.config/systemd/user/{{item}}
+    dest: ~{{userName}}/.config/systemd/user/{{item}}
   with_items:
     - app.service
     - socket.service
 
-- name: Register uid of "{{name}}"
-  command: id -u {{name}}
+- name: Register uid of "{{userName}}"
+  command: id -u {{userName}}
   register: uid
 
 - name: Enable systemd services for uwsgi app
   become: True
-  become_user: "{{name}}"
+  become_user: "{{userName}}"
 
   with_items:
     - app.service

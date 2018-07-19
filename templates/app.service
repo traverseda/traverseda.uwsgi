@@ -1,5 +1,5 @@
 [Unit]
-Description={{name}} uWSGI app
+Description={{userName}} uWSGI app
 After=syslog.target
 
 [Service]
